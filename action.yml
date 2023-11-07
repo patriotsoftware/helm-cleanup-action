@@ -34,16 +34,11 @@ runs:
   steps:
     - name: Authenticate with DEV
       uses: aws-actions/configure-aws-credentials@v1-node16
-      with:
-        aws-access-key-id: ${{ inputs.aws-access-key-id }}
-        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
-        aws-region: us-east-1
           
     - name: Clean Up Helm
       id: helm-uninstall
       run: |
         namespace="${{ inputs.namespace }}"
-        echo "main-uninstalled=true" >> $GITHUB_OUTPUT 
         results_array=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" -n $namespace)
         pods=(`echo ${results_array}`);
 
