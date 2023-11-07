@@ -5,13 +5,7 @@ description: Run repository helm cleanup
 inputs:
   namespace:
     description: 'Helm Namespace'
-    required: true  
-  aws-access-key-id:
-    description: 'AWS Access Key ID'
-    required: true
-  aws-secret-access-key:
-    description: 'AWS Secret Access Key'
-    required: true
+    required: true   
   github-repo:
     description: 'GitHub repo'
     required: false
