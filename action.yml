@@ -62,11 +62,11 @@ runs:
     - name: Results check
       shell: bash
       run: |
-        echo "${{ steps.helm-uninstall.output.main-repo }}"
+        echo "${{ steps.helm-uninstall.outputs.main-repo }}"
         echo "${{ inputs.slack-token }}"
 
     - uses: patriotsoftware/slack-bot-action@v1
-      if: ${{ steps.helm-uninstall.output.main-repo == 'true' && inputs.slack-token != '' }}
+      if: ${{ steps.helm-uninstall.outputs.main-repo == 'true' && inputs.slack-token != '' }}
       with:
         destination: ${{ inputs.team-channel }}
         # Fallback used if can't find email of committer, often due to the private github commit email addresses.
