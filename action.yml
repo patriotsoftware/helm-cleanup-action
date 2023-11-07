@@ -53,8 +53,6 @@ runs:
             if [ $HELM_NAME -eq $namespace ]; then
               echo "Main branch is being uninstalled. Alert is triggered."
               echo "main-repo=true" >> $GITHUB_OUTPUT 
-            else
-              echo "Branch is being uninstalled."
             fi
             
             echo "Uninstall HELM: ${HELM_NAME}"
@@ -70,13 +68,15 @@ runs:
         echo "${{ inputs.slack-token }}"
 
     - uses: patriotsoftware/slack-bot-action@v1
-      if: ${{ steps.helm-uninstall.outputs.main-repo == 'true' && inputs.slack-token != '' }}
+      if: ${{ steps.helm-uninstall.outputs.pod-status != '' && inputs.slack-token != '' }}
       with:
         destination: ${{ inputs.team-channel }}
         # Fallback used if can't find email of committer, often due to the private github commit email addresses.
         # TODO: Change to your team's alerts channel here:
         fallback-destination: "#alerts-unknown-team"
         message: |
-          *Status: Main Branch on Helm ${{ inputs.namespace }} Uninstalled*
+          *Status: Branch Cleanup Uninstalled Main/Master*
           Repo: SynergyDataSystems/${{ inputs.github-repo-name }}
+          Branch Cleanup uninstalls branches that are not in a 'Running' or 'Terminating' state.
+          https://github.com/SynergyDataSystems/${{ inputs.github-repo-name }}/actions/workflows/cleanup-bad-deploys.yml
         slack-token: ${{ inputs.slack-token }}
