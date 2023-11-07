@@ -67,6 +67,8 @@ runs:
 
     - uses: patriotsoftware/slack-bot-action@v1
       if: ${{ steps.helm-uninstall.outputs.main-repo == 'true' && inputs.slack-token != '' }}
+      env:
+         namespace: "${{ inputs.namespace }}"
       with:
         destination: ${{ inputs.team-channel }}
         # Fallback used if can't find email of committer, often due to the private github commit email addresses.
@@ -74,4 +76,4 @@ runs:
         fallback-destination: "#alerts-unknown-team"
         message: |
           *Status: Main Branch on Helm $namespace Uninstalled*
-        slack-token: ${{ inputs.SLACK_TOKEN }}
+        slack-token: ${{ inputs.slack-token }}
