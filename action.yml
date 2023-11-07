@@ -20,8 +20,8 @@ inputs:
     description: 'Slack token'
     required: false
     default: ''
-  team-channel:
-    description: 'Team channel for messaging. Comma separated list. Valid Options: committer, #channel-name, email@email.com. Default is #alerts-devops'
+  destination:
+    description: 'Destination for messaging. Comma separated list. Valid Options: committer, #channel-name, email@email.com. Default is #alerts-devops'
     required: false
     default: '#alerts-devops'
     
@@ -64,7 +64,7 @@ runs:
     - uses: patriotsoftware/slack-bot-action@v1
       if: ${{ steps.helm-uninstall.outputs.main-uninstalled -eq true && inputs.slack-token != '' }}
       with:
-        destination: ${{ inputs.team-channel }}
+        destination: ${{ inputs.destination }}
         # Fallback used if can't find email of committer, often due to the private github commit email addresses.
         # TODO: Change to your team's alerts channel here:
         fallback-destination: "#alerts-unknown-team"
