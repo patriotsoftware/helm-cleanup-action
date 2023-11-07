@@ -5,13 +5,17 @@ description: Run repository helm cleanup
 inputs:
   namespace:
     description: 'Helm Namespace'
-    required: true
+    required: true  
   aws-access-key-id:
     description: 'AWS Access Key ID'
     required: true
   aws-secret-access-key:
     description: 'AWS Secret Access Key'
     required: true
+  github-repo-name:
+    description: 'GitHub repo name'
+    required: false
+    default: ''
   slack-token:
     description: 'Slack token'
     required: false
@@ -75,5 +79,6 @@ runs:
         # TODO: Change to your team's alerts channel here:
         fallback-destination: "#alerts-unknown-team"
         message: |
-          *Status: Main Branch on Helm $namespace Uninstalled*
+          *Status: Main Branch on Helm $env.namespace Uninstalled*
+          Repo: SynergyDataSystems/${{ inputs.github-repo-name }}
         slack-token: ${{ inputs.slack-token }}
