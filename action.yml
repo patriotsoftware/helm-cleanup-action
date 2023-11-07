@@ -12,8 +12,12 @@ inputs:
   aws-secret-access-key:
     description: 'AWS Secret Access Key'
     required: true
-  github-repo-name:
-    description: 'GitHub repo name'
+  github-repo:
+    description: 'GitHub repo'
+    required: false
+    default: ''
+  github-run-id:
+    description: 'GitHub run id'
     required: false
     default: ''
   slack-token:
@@ -62,7 +66,7 @@ runs:
       shell: bash
 
     - uses: patriotsoftware/slack-bot-action@v1
-      if: ${{ steps.helm-uninstall.outputs.main-uninstalled == 'true' && inputs.slack-token != '' }}
+      if: ${{ steps.helm-uninstall.outputs.main-uninstalled == 'true' && inputs.slack-token != '' && inputs.github-repo != '' }}
       with:
         destination: ${{ inputs.destination }}
         # Fallback used if can't find email of committer, often due to the private github commit email addresses.
@@ -70,7 +74,7 @@ runs:
         fallback-destination: "#alerts-unknown-team"
         message: |
           *Status: Branch Cleanup Uninstalled Main/Master*
-          Repo: SynergyDataSystems/${{ inputs.github-repo-name }}
+          Repo: ${{ inputs.github-repo }}
           Branch Cleanup uninstalls branches that are not in a 'Running' or 'Terminating' state.
-          https://github.com/SynergyDataSystems/${{ inputs.github-repo-name }}/actions/workflows/cleanup-bad-deploys.yml
+          https://github.com/${{ inputs.github-repo }}/actions/runs/${{ inputs.github.run-id}}
         slack-token: ${{ inputs.slack-token }}
