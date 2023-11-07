@@ -35,6 +35,7 @@ runs:
       id: helm-uninstall
       run: |
         namespace="${{ inputs.namespace }}"
+        echo "main-repo=true" >> $GITHUB_OUTPUT 
         results_array=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" -n $namespace)
         pods=(`echo ${results_array}`);
 
