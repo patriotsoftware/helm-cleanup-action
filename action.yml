@@ -62,8 +62,8 @@ runs:
     - name: Results check
       shell: bash
       run: |
-        echo "$steps.helm-uninstall.output.main-repo"
-        echo "${{ inputs.slack-token }}
+        echo "${{ steps.helm-uninstall.output.main-repo }}"
+        echo "${{ inputs.slack-token }}"
 
     - uses: patriotsoftware/slack-bot-action@v1
       if: ${{ steps.helm-uninstall.output.main-repo == 'true' && inputs.slack-token != '' }}
