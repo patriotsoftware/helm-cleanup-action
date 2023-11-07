@@ -8,12 +8,6 @@ Action intended to be called from cleanup bad deploys to do a helm-uninstall.
 #### 'namespace' required)
 Namespace used by the repo and required for the helm uninstall command.
 
-#### 'aws-access-key-id' (required)
-The AWS access key id, should always be for dev.
-
-#### 'aws-secret-access-key' (required)
-The AWS secret access key, should always be for dev.
-
 #### 'github-repo' (optional)
 The GitHub repository used for optional alerting.
 
@@ -36,8 +30,6 @@ helm-cleanup:
   - uses: patriotsoftware/helm-cleanup-action@v1
     with:
       namespace: payrollcorepayschedulesapi
-      aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
-      aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}    
       slack-token: ${{ secrets.SLACK_TOKEN }}
       destination: "#alerts-devops"
       github-repo: ${{ github.repository }} 
