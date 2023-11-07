@@ -12,6 +12,14 @@ inputs:
   aws-secret-access-key:
     description: 'AWS Secret Access Key'
     required: true
+  slack-token:
+    description: 'Slack token'
+    required: false
+    default: ''
+  team-channel:
+    description: 'Team channel for messaging. Comma separated list. Valid Options: committer, #channel-name, email@email.com. Default is #alerts-devops'
+    required: false
+    default: '#alerts-devops'
     
 runs:
   using: 'composite'
@@ -27,18 +35,36 @@ runs:
       id: helm-uninstall
       run: |
         namespace="${{ inputs.namespace }}"
-        results_array=$(kubectl get pods  --no-headers -o custom-columns=":metadata.name" -n $namespace)
+        results_array=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" -n $namespace)
         pods=(`echo ${results_array}`);
 
         for i in "${pods[@]}"
         do
           value=$(kubectl get pods $i --no-headers -n $namespace)
           if [[ ${value} != *"Running"* ]] && [[ ${value} != *"Terminating"* ]]; then
-                # helm name is retrieved by excluding everything after second to last dash:
-                echo "POD STATUS: ${value}"
-                HELM_NAME=$(echo $i | sed 's/\-[^-]*$//' | sed 's/\-[^-]*$//')
-                echo "Uninstall HELM: ${HELM_NAME}"
-                helm uninstall $HELM_NAME -n $namespace
+            # helm name is retrieved by excluding everything after second to last dash:
+            echo "POD STATUS: ${value}"
+            HELM_NAME=$(echo $i | sed 's/\-[^-]*$//' | sed 's/\-[^-]*$//')
+            if [ $HELM_NAME -eq $namespace ]; then
+              echo "Main branch is being uninstalled. Alert is triggered."
+              echo "main-repo=true" >> $GITHUB_OUTPUT 
+            else
+              echo "Branch is being uninstalled."
+            fi
+            
+            echo "Uninstall HELM: ${HELM_NAME}"
+            #helm uninstall $HELM_NAME -n $namespace
           fi
         done
       shell: bash
+
+    - uses: patriotsoftware/slack-bot-action@v1
+      if: ${{ steps.helm-uninstall.output.main-repo == 'true' && inputs.slack-token != '' }}
+      with:
+        destination: ${{ inputs.team-channel }}
+        # Fallback used if can't find email of committer, often due to the private github commit email addresses.
+        # TODO: Change to your team's alerts channel here:
+        fallback-destination: "#alerts-unknown-team"
+        message: |
+          *Status: Main Branch on Helm $namespace Uninstalled*
+        slack-token: ${{ inputs.SLACK_TOKEN }}
