@@ -39,7 +39,7 @@ runs:
       id: helm-uninstall
       run: |
         namespace="${{ inputs.namespace }}"
-        echo "main-repo=true" >> $GITHUB_OUTPUT 
+        echo "main-uninstalled=true" >> $GITHUB_OUTPUT 
         results_array=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" -n $namespace)
         pods=(`echo ${results_array}`);
 
@@ -52,7 +52,7 @@ runs:
             HELM_NAME=$(echo $i | sed 's/\-[^-]*$//' | sed 's/\-[^-]*$//')
             if [ $HELM_NAME -eq $namespace ]; then
               echo "Main branch is being uninstalled. Alert is triggered."
-              echo "main-repo=true" >> $GITHUB_OUTPUT 
+              echo "main-uninstalled=true" >> $GITHUB_OUTPUT 
             fi
             
             echo "Uninstall HELM: ${HELM_NAME}"
@@ -68,7 +68,7 @@ runs:
         echo "${{ inputs.slack-token }}"
 
     - uses: patriotsoftware/slack-bot-action@v1
-      if: ${{ steps.helm-uninstall.outputs.pod-status != '' && inputs.slack-token != '' }}
+      if: ${{ steps.helm-uninstall.outputs.main-uninstalled -eq true && inputs.slack-token != '' }}
       with:
         destination: ${{ inputs.team-channel }}
         # Fallback used if can't find email of committer, often due to the private github commit email addresses.
