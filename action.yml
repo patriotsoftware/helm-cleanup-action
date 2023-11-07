@@ -34,6 +34,8 @@ runs:
   steps:
     - name: Authenticate with DEV
       uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        aws-region: us-east-1
           
     - name: Clean Up Helm
       id: helm-uninstall
