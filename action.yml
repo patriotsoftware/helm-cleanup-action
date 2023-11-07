@@ -62,7 +62,7 @@ runs:
       shell: bash
 
     - uses: patriotsoftware/slack-bot-action@v1
-      if: ${{ steps.helm-uninstall.outputs.main-uninstalled -eq true && inputs.slack-token != '' }}
+      if: ${{ steps.helm-uninstall.outputs.main-uninstalled == 'true' && inputs.slack-token != '' }}
       with:
         destination: ${{ inputs.destination }}
         # Fallback used if can't find email of committer, often due to the private github commit email addresses.
