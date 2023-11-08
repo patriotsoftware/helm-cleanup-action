@@ -62,7 +62,7 @@ runs:
         destination: ${{ inputs.destination }}
         # Fallback used if can't find email of committer, often due to the private github commit email addresses.
         # TODO: Change to your team's alerts channel here:
-        fallback-destination: "#alerts-unknown-team"
+        fallback-destination: "#alerts-devops"
         message: |
           *Status: Branch Cleanup Uninstalled Main/Master*
           Repo: ${{ inputs.github-repo }}
