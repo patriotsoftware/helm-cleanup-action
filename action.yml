@@ -45,7 +45,7 @@ runs:
             # helm name is retrieved by excluding everything after second to last dash:
             echo "POD STATUS: ${value}"
             HELM_NAME=$(echo $i | sed 's/\-[^-]*$//' | sed 's/\-[^-]*$//')
-            if [ $HELM_NAME -eq $namespace ]; then
+            if [ $HELM_NAME == $namespace ]; then
               echo "Main branch is being uninstalled. Alert is triggered."
               echo "main-uninstalled=true" >> $GITHUB_OUTPUT 
             fi
