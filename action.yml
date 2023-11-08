@@ -5,13 +5,23 @@ description: Run repository helm cleanup
 inputs:
   namespace:
     description: 'Helm Namespace'
-    required: true
-  aws-access-key-id:
-    description: 'AWS Access Key ID'
-    required: true
-  aws-secret-access-key:
-    description: 'AWS Secret Access Key'
-    required: true
+    required: true   
+  github-repo:
+    description: 'GitHub repo'
+    required: false
+    default: ''
+  github-run-id:
+    description: 'GitHub run id'
+    required: false
+    default: ''
+  slack-token:
+    description: 'Slack token'
+    required: false
+    default: ''
+  destination:
+    description: 'Destination for messaging. Comma separated list. Valid Options: committer, #channel-name, email@email.com. Default is #alerts-devops'
+    required: false
+    default: '#alerts-devops'
     
 runs:
   using: 'composite'
@@ -19,26 +29,43 @@ runs:
     - name: Authenticate with DEV
       uses: aws-actions/configure-aws-credentials@v1-node16
       with:
-        aws-access-key-id: ${{ inputs.aws-access-key-id }}
-        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
         aws-region: us-east-1
           
     - name: Clean Up Helm
       id: helm-uninstall
       run: |
         namespace="${{ inputs.namespace }}"
-        results_array=$(kubectl get pods  --no-headers -o custom-columns=":metadata.name" -n $namespace)
+        results_array=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" -n $namespace)
         pods=(`echo ${results_array}`);
 
         for i in "${pods[@]}"
         do
           value=$(kubectl get pods $i --no-headers -n $namespace)
           if [[ ${value} != *"Running"* ]] && [[ ${value} != *"Terminating"* ]]; then
-                # helm name is retrieved by excluding everything after second to last dash:
-                echo "POD STATUS: ${value}"
-                HELM_NAME=$(echo $i | sed 's/\-[^-]*$//' | sed 's/\-[^-]*$//')
-                echo "Uninstall HELM: ${HELM_NAME}"
-                helm uninstall $HELM_NAME -n $namespace
+            # helm name is retrieved by excluding everything after second to last dash:
+            echo "POD STATUS: ${value}"
+            HELM_NAME=$(echo $i | sed 's/\-[^-]*$//' | sed 's/\-[^-]*$//')
+            if [ $HELM_NAME == $namespace ]; then
+              echo "Main branch is being uninstalled. Alert is triggered."
+              echo "main-uninstalled=true" >> $GITHUB_OUTPUT 
+            fi
+            
+            echo "Uninstall HELM: ${HELM_NAME}"
+            #helm uninstall $HELM_NAME -n $namespace
           fi
         done
       shell: bash
+
+    - uses: patriotsoftware/slack-bot-action@v1
+      if: ${{ steps.helm-uninstall.outputs.main-uninstalled == 'true' && inputs.slack-token != '' && inputs.github-repo != '' }}
+      with:
+        destination: ${{ inputs.destination }}
+        # Fallback used if can't find email of committer, often due to the private github commit email addresses.
+        # TODO: Change to your team's alerts channel here:
+        fallback-destination: "#alerts-devops"
+        message: |
+          *Status: Branch Cleanup Uninstalled Main/Master*
+          Repo: ${{ inputs.github-repo }}
+          Branch Cleanup uninstalls branches that are not in a 'Running' or 'Terminating' state.
+          https://github.com/${{ inputs.github-repo }}/actions/runs/${{ inputs.github-run-id }}
+        slack-token: ${{ inputs.slack-token }}
