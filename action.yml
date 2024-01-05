@@ -37,11 +37,16 @@ runs:
         namespace="${{ inputs.namespace }}"
         results_array=$(kubectl get pods -n $namespace -o custom-columns=HELM:.status.containerStatuses[*].name,BRANCH:.metadata.labels.patriotsoftware/branch,STATUS:.status.containerStatuses[*].state.waiting.reason --no-headers | grep -v -e '<none>')
 
-        for cols in "${results_array[@]}"
+        for i in "${results_array[@]}"
         do
-          helm_name=$cols[0]
-          branch_name=$cols[1]
-          reason=$cols[2]
+          echo $i
+          echo ${i}
+          col=($i)
+          echo $col
+          echo ${col}
+          helm_name=$col[0]
+          branch_name=$col[1]
+          reason=$col[2]
           echo "HELM: $helm_name BRANCH: $branch_name MSG: $reason"
           
           if [ $branch_name == "main" ]; then
