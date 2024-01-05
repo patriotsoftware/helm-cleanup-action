@@ -35,24 +35,24 @@ runs:
       id: helm-uninstall
       run: |
         namespace="${{ inputs.namespace }}"
-        results_array=$(kubectl get pods --no-headers -o custom-columns=":metadata.name" -n $namespace)
+        results_array=$(kubectl get pods -n $namespace -o custom-columns=HELM:.status.containerStatuses[*].name,BRANCH:.metadata.labels.patriotsoftware/branch,STATUS:.status.containerStatuses[*].state.waiting.reason --no-headers | grep -v -e '<none>')
         pods=(`echo ${results_array}`);
 
         for i in "${pods[@]}"
         do
-          value=$(kubectl get pods $i --no-headers -n $namespace)
-          if [[ ${value} != *"Running"* ]] && [[ ${value} != *"Terminating"* ]]; then
-            # helm name is retrieved by excluding everything after second to last dash:
-            echo "POD STATUS: ${value}"
-            HELM_NAME=$(echo $i | sed 's/\-[^-]*$//' | sed 's/\-[^-]*$//')
-            if [ $HELM_NAME == $namespace ]; then
-              echo "Main branch is being uninstalled. Alert is triggered."
-              echo "main-uninstalled=true" >> $GITHUB_OUTPUT 
-            fi
-            
-            echo "Uninstall HELM: ${HELM_NAME}"
-            helm uninstall $HELM_NAME -n $namespace
+          col=$(i)
+          helm_name=$col[0]
+          branch_name=$col[1]
+          reason=$col[2]
+          echo "HELM: $helm_name BRANCH: $branch_name MSG: $reason"
+          
+          if [ $branch_name == "Main" ]; then
+            echo "Main branch is being uninstalled. Alert is triggered."
+            echo "main-uninstalled=true" >> $GITHUB_OUTPUT 
           fi
+          
+          echo "Uninstall HELM: ${helm_name}"
+         # helm uninstall $helm_name -n $namespace
         done
       shell: bash
 
