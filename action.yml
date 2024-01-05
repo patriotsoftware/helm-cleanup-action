@@ -43,7 +43,7 @@ runs:
           helm_name="${col[0]}"
           branch_name="${col[1]}"
           reason="${col[2]}"
-          echo "HELM: $helm_name BRANCH: $branch_name MSG: $reason"
+          echo "BRANCH:$branch_name MSG:$reason"
           
           if [ $branch_name == "main" ]; then
             echo "Main branch is being uninstalled. Alert is triggered."
