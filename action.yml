@@ -40,7 +40,7 @@ runs:
 
         for i in "${pods[@]}"
         do
-          col=$(i)
+          col=($i)
           helm_name=$col[0]
           branch_name=$col[1]
           reason=$col[2]
