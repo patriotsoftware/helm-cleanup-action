@@ -51,7 +51,7 @@ runs:
             fi
             
             echo "Uninstall HELM: ${HELM_NAME}"
-            #helm uninstall $HELM_NAME -n $namespace
+            helm uninstall $HELM_NAME -n $namespace
           fi
         done
       shell: bash
