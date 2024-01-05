@@ -37,12 +37,12 @@ runs:
         namespace="${{ inputs.namespace }}"
         results_array=$(kubectl get pods -n $namespace -o custom-columns=HELM:.status.containerStatuses[*].name,BRANCH:.metadata.labels.patriotsoftware/branch,STATUS:.status.containerStatuses[*].state.waiting.reason --no-headers | grep -v -e '<none>')
 
-        for i in "${results_array[@]}"
+        for line in "${results_array[@]}"
         do
-          cols=(`echo ${i}`);          
-          helm_name="${cols[0]}"
-          branch_name="${cols[1]}"
-          reason="${cols[2]}"
+          col=(`echo ${line}`);          
+          helm_name="${col[0]}"
+          branch_name="${col[1]}"
+          reason="${col[2]}"
           echo "HELM: $helm_name BRANCH: $branch_name MSG: $reason"
           
           if [ $branch_name == "main" ]; then
@@ -51,7 +51,7 @@ runs:
           fi
           
           echo "Uninstall HELM: ${helm_name}"
-         # helm uninstall $helm_name -n $namespace
+          helm uninstall $helm_name -n $namespace
         done
       shell: bash
 
