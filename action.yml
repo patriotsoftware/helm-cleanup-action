@@ -40,9 +40,9 @@ runs:
         for i in "${results_array[@]}"
         do
           echo $i          
-          helm_name=$i[0]
-          branch_name=$i[1]
-          reason=$i[2]
+          helm_name="${i[0]}"
+          branch_name="${i[1]}"
+          reason="${i[2]}"
           echo "HELM: $helm_name BRANCH: $branch_name MSG: $reason"
           
           if [ $branch_name == "main" ]; then
