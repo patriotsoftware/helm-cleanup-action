@@ -36,12 +36,8 @@ runs:
       run: |
         namespace="${{ inputs.namespace }}"
         results_array=$(kubectl get pods -n $namespace -o custom-columns=HELM:.status.containerStatuses[*].name,BRANCH:.metadata.labels.patriotsoftware/branch,STATUS:.status.containerStatuses[*].state.waiting.reason --no-headers | grep -v -e '<none>')
-        echo $results_array
-        echo ${results_array}
-        pods=(`echo ${results_array}`);
-        echo $pods
 
-        for i in "${pods[@]}"
+        for i in "${results_array[@]}"
         do
           echo $i
           echo ${i}
