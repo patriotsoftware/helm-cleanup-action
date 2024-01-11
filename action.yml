@@ -34,9 +34,12 @@ runs:
     - name: Clean Up Helm
       id: helm-uninstall
       run: |
+        echo "Running clean-up helm"
         namespace="${{ inputs.namespace }}"
+        echo "Namespace: $namespace"
         results_array=$(kubectl get pods -n $namespace -o custom-columns=HELM:.status.containerStatuses[*].name,BRANCH:.metadata.labels.patriotsoftware/branch,STATUS:.status.containerStatuses[*].state.waiting.reason --no-headers | grep -v -e '<none>')
-
+        echo "${results_array[@]}"
+        
         for line in "${results_array[@]}"
         do
           col=(`echo ${line}`);          
