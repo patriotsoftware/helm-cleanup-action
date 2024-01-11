@@ -34,14 +34,16 @@ runs:
     - name: Clean Up Helm
       id: helm-uninstall
       run: |
-        echo "Running clean-up helm"
         namespace="${{ inputs.namespace }}"
-        echo "Namespace: $namespace"
-        results_array=$(kubectl get pods -n $namespace -o custom-columns=HELM:.status.containerStatuses[*].name,BRANCH:.metadata.labels.patriotsoftware/branch,STATUS:.status.containerStatuses[*].state.waiting.reason --no-headers | grep -v -e '<none>')
-        echo "${results_array[@]}"
+        results_array=$(kubectl get pods -n $namespace -o custom-columns=HELM:.status.containerStatuses[*].name,BRANCH:.metadata.labels.patriotsoftware/branch,STATUS:.status.containerStatuses[*].state.waiting.reason --no-headers | grep -v -e '<none>' || true)
+
+        if [ -z ${#results_array}]; then
+          exit 0;
+        fi
         
         for line in "${results_array[@]}"
         do
+          echo "$line"
           col=(`echo ${line}`);          
           helm_name="${col[0]}"
           branch_name="${col[1]}"
@@ -56,6 +58,7 @@ runs:
           echo "Uninstall HELM: ${helm_name}"
           helm uninstall $helm_name -n $namespace
         done
+        
       shell: bash
 
     - uses: patriotsoftware/slack-bot-action@v1
