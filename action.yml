@@ -37,7 +37,7 @@ runs:
         namespace="${{ inputs.namespace }}"
         echo "$namespace"
         results_array=$(kubectl get pods -n $namespace -o custom-columns=HELM:.status.containerStatuses[*].name,BRANCH:.metadata.labels.patriotsoftware/branch,STATUS:.status.containerStatuses[*].state.waiting.reason --no-headers | grep -v -e '<none>'  || true)
-
+        ${#results_array} 
         echo "$results_array"
         for line in "${results_array[@]}"
         do
