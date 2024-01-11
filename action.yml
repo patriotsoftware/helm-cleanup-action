@@ -36,6 +36,8 @@ runs:
       run: |
         namespace="${{ inputs.namespace }}"
         echo "$namespace"
+        kubectl get pods -n $namespace -o custom-columns=HELM:.status.containerStatuses[*].name,BRANCH:.metadata.labels.patriotsoftware/branch,STATUS:.status.containerStatuses[*].state.waiting.reason --no-headers | grep -v -e '<none>'
+        kubectl get pods -n $namespace -o custom-columns=HELM:.status.containerStatuses[*].name,BRANCH:.metadata.labels.patriotsoftware/branch,STATUS:.status.containerStatuses[*].state.waiting.reason --no-headers 
         results_array=$(kubectl get pods -n $namespace -o custom-columns=HELM:.status.containerStatuses[*].name,BRANCH:.metadata.labels.patriotsoftware/branch,STATUS:.status.containerStatuses[*].state.waiting.reason --no-headers | grep -v -e '<none>')
 
         echo "$results"
