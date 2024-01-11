@@ -38,8 +38,10 @@ runs:
         echo "$namespace"
         results_array=$(kubectl get pods -n $namespace -o custom-columns=HELM:.status.containerStatuses[*].name,BRANCH:.metadata.labels.patriotsoftware/branch,STATUS:.status.containerStatuses[*].state.waiting.reason --no-headers | grep -v -e '<none>')
 
+        echo "$results"
         for line in "${results_array[@]}"
         do
+          echo "$line"
           col=(`echo ${line}`);          
           helm_name="${col[0]}"
           branch_name="${col[1]}"
