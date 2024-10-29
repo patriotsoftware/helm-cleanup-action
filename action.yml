@@ -47,7 +47,7 @@ runs:
             reason="${col[2]}"
             echo "BRANCH:$branch_name MSG:$reason"
             
-            if [ $branch_name == "main" ]; then
+            if [[ $branch_name == "main" && $reason != "ContainerCreating" ]]; then
               echo "Main branch is being uninstalled. Alert is triggered."
               echo "main-uninstalled=true" >> $GITHUB_OUTPUT 
             fi
